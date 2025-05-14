@@ -16,6 +16,8 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth";
 import { logoutUser } from "../lib/api";
 import { toast } from "sonner";
+import { pageTitle } from "../lib/utils";
+import { useEffect } from "react";
 
 // Menu items.
 const navLinks = [
@@ -109,7 +111,21 @@ export function AppSidebar() {
 
     }
   }
+  useEffect(() => {
 
+    document.title = pageTitle(
+      location.pathname.startsWith('/product') ?
+        location.pathname.slice(8) + ' | E-commerce Admin By Anas Ahmed' :
+        location.pathname === '/' ?
+          'E-commerce Admin By Anas Ahmed' :
+          location.pathname + ' | E-commerce Admin By Anas Ahmed'
+    );
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (location.pathname !== '/' && metaDesc) {
+      metaDesc.setAttribute("content", location.pathname.startsWith('/product') ?
+        'Get the ' + location.pathname.slice(8) : location.pathname + " page at E-commerce made by Anas-Ahmed with Reactjs, Nodejs, Frontend/Backend Caching strategies");
+    }
+  }, [location]);
 
   return (
     <Sidebar collapsible="icon">

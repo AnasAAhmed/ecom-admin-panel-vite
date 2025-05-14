@@ -1,5 +1,3 @@
-"use client";
-
 import Delete from "../custom ui/Delete";
 import { Link } from "react-router-dom";
 import { Clipboard } from "lucide-react";

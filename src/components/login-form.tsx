@@ -1,5 +1,3 @@
-'use client'
-
 import { useFormStatus } from 'react-dom'
 import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Loader } from 'lucide-react'
