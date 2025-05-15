@@ -2,7 +2,7 @@ import { SidebarProvider, SidebarTrigger } from './components/ui/sidebar'
 import { AppSidebar } from './components/app-sidebar'
 import { Toaster } from './components/ui/sonner'
 import { Suspense, useEffect, useState } from 'react'
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from './components/protected-route';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from './pages/Home';
@@ -24,11 +24,15 @@ import { fetchUser } from './lib/api';
 import { toast } from 'sonner';
 import Loader from './components/custom ui/Loader';
 import { ModeToggle } from './components/ui/theme-toggle';
+import useDynamicMeta from './hooks/useDynamicMetaData';
+import Breadcrumb from './components/BreadCrumb';
 
 export const API_BASE = import.meta.env.VITE_API_URL;
 function App() {
   const [queryClient] = useState(() => new QueryClient());
   const { user, loading, shouldFetch, setUser, clearUser } = useAuth()
+
+  useDynamicMeta();
 
   useEffect(() => {
     async function loadUser() {
@@ -52,47 +56,46 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <Router>
-          <SidebarProvider defaultOpen={false}>
-            <Toaster position='top-right' />
-            <IsOnline />
-            {user && <AppSidebar />}
-            <main className='w-full'>
+        <SidebarProvider defaultOpen={false}>
+          <Toaster position='top-right' />
+          <IsOnline />
+          {user && <AppSidebar />}
+          <main className='w-full'>
 
-              <SidebarTrigger title={user ? 'Press Crtl + B To Open Sidebar' : 'Login first to open sidebar'} className='cursor-pointer border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 mx-[9.5px] mt-[9.5px]' />
-              <ModeToggle />
-              <Suspense fallback={'<Loader />'}>
-                <Routes>
-                  {/* Not logged In Route */}
-                  <Route
-                    path="/login"
-                    element={
-                      <ProtectedRoute isAuthenticated={user ? false : true} redirect='/'>
-                        <LoginPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  {/* Logged In User Routes */}
-                  <Route
-                    element={<ProtectedRoute isAuthenticated={user ? true : false} redirect='/login' />}
-                  >
-                    <Route path="/" element={<Home />} />
-                    <Route path="/collections" element={<Collections />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/customers" element={<Customers />} />
-                    <Route path="/home-page" element={<HomePageData />} />
-                    <Route path="/collections/new" element={<NewCollection />} />
-                    <Route path="/collections/:id" element={<EditCollection />} />
-                    <Route path="/products/new" element={<NewProduct />} />
-                    <Route path="/products/:id" element={<EditProduct />} />
-                    <Route path="/orders/:id" element={<OrderDetails />} />
-                  </Route>
-                </Routes>
-              </Suspense>
-            </main>
-          </SidebarProvider>
-        </Router>
+            <SidebarTrigger title={user ? 'Press Crtl + B To Open Sidebar' : 'Login first to open sidebar'} className='cursor-pointer border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 mx-[9.5px] mt-[9.5px]' />
+            <ModeToggle />
+            <Breadcrumb/>
+            <Suspense fallback={'<Loader />'}>
+              <Routes>
+                {/* Not logged In Route */}
+                <Route
+                  path="/login"
+                  element={
+                    <ProtectedRoute isAuthenticated={user ? false : true} redirect='/'>
+                      <LoginPage />
+                    </ProtectedRoute>
+                  }
+                />
+                {/* Logged In User Routes */}
+                <Route
+                  element={<ProtectedRoute isAuthenticated={user ? true : false} redirect='/login' />}
+                >
+                  <Route path="/" element={<Home />} />
+                  <Route path="/collections" element={<Collections />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/customers" element={<Customers />} />
+                  <Route path="/home-page" element={<HomePageData />} />
+                  <Route path="/collections/new" element={<NewCollection />} />
+                  <Route path="/collections/edit/:id" element={<EditCollection />} />
+                  <Route path="/products/new" element={<NewProduct />} />
+                  <Route path="/products/edit/:id" element={<EditProduct />} />
+                  <Route path="/orders/manage/:id" element={<OrderDetails />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </main>
+        </SidebarProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )

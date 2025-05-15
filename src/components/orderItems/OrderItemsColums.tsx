@@ -9,7 +9,7 @@ export const columns: ColumnDef<OrderItemType>[] = [
       return product ? (
         <Link
         title="Go To product"
-          to={`/products/${product._id}`}
+          to={`/products/edit/${product._id}`}
           className="hover:text-red-500"
         >
           {product.title}

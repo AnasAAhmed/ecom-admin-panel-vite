@@ -16,7 +16,7 @@ export const columns: ColumnDef<OrderColumnType>[] = [
             <TooltipTrigger asChild>
               <Link
                 title={"Edit " + row.original._id}
-                to={`/orders/${row.original._id}`}
+                to={`/orders/manage/${row.original._id}`}
                 className="hover:text-blue-400 max-w-28 rounded-md"
 
               >

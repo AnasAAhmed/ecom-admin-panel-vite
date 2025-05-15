@@ -14,7 +14,7 @@ export const columns: ColumnDef<CollectionType>[] = [
           <TooltipTrigger asChild>
             <Link
               title={"Edit " + row.original.title}
-              to={`/collections/${row.original._id}`}
+              to={`/collections/edit/${row.original.title}?id=${row.original._id}`}
               className="hover:text-blue-400 max-w-28 rounded-md"
 
             >

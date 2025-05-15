@@ -158,16 +158,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isCollection = false, onImage
               </Badge>
             </div>
             <img
-              src={'/fallback.png'}
-              onLoad={(e) => {
-                e.currentTarget.src = '';
-                e.currentTarget.src = url;
-              }}
-               onError={(e) => {
-                e.currentTarget.src ='';
-                e.currentTarget.src ='/fallback.png';
-              }}
+              src={url}
               alt="current collection image"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = "/fallback.png";
+              }}
               className="object-cover ring-[0.4px] ring-blue-300 border rounded-md"
             />
           </div>
