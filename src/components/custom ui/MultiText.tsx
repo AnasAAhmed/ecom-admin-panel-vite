@@ -40,10 +40,10 @@ export const MultiTextForTag: React.FC<MultiTextForTagProps> = ({
 
       <div className="flex gap-1 flex-wrap mt-4">
         {value.map((item, index) => (
-          <Badge key={index} className="bg-grey-1 text-white">
+          <Badge key={index} className="">
             {item}
             <button
-              className="ml-1 rounded-full outline-none hover:bg-red-1"
+              className="ml-1 rounded-full outline-none hover:bg-destructive"
               onClick={() => onRemove(item)}
               type="button"
             >
@@ -138,7 +138,7 @@ export const MultiTextForVariants: React.FC<MultiTextForVariantsProps> = ({
   onRemove,
 }) => {
   const [sizeValue, setSizeValue] = useState("");
-  const [quantityValue, setQuantityValue] = useState<number>(0);
+  const [quantityValue, setQuantityValue] = useState<number | undefined>(undefined);
   const [colorValue, setColorValue] = useState<string>('');
 
   const addValue = (size: string, quantity: number, color: string) => {
@@ -146,7 +146,7 @@ export const MultiTextForVariants: React.FC<MultiTextForVariantsProps> = ({
     onChange({ size, quantity, color });
     // }
     setSizeValue("");
-    setQuantityValue(0);
+    setQuantityValue(undefined);
     setColorValue('');
   };
 
@@ -160,7 +160,7 @@ export const MultiTextForVariants: React.FC<MultiTextForVariantsProps> = ({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addValue(sizeValue, quantityValue, colorValue);
+              addValue(sizeValue, quantityValue!, colorValue);
             }
           }}
         />
@@ -172,19 +172,19 @@ export const MultiTextForVariants: React.FC<MultiTextForVariantsProps> = ({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addValue(sizeValue, quantityValue, colorValue);
+              addValue(sizeValue, quantityValue!, colorValue);
             }
           }}
         />
         <Input
           placeholder="Quantity"
           type="number"
-          value={quantityValue || undefined}
+          value={quantityValue === undefined ? '' : quantityValue}
           onChange={(e) => setQuantityValue(Number(e.target.value))}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addValue(sizeValue, quantityValue, colorValue);
+              addValue(sizeValue, quantityValue!, colorValue);
             }
           }}
         />
@@ -192,10 +192,10 @@ export const MultiTextForVariants: React.FC<MultiTextForVariantsProps> = ({
 
       <div className="flex gap-1 flex-wrap mt-4">
         {value.map((item, index) => (
-          <Badge key={index} className="bg-grey-1 text-white">
+          <Badge key={index}>
             {item.size}  - {item.color}- {item.quantity}
             <button
-              className="ml-1 rounded-full outline-none hover:bg-red-1"
+              className="ml-1 rounded-full outline-none hover:bg-red-500"
               onClick={() => onRemove(index)}
               type="button"
             >
@@ -216,15 +216,15 @@ export const MultiInputsForDimensions: React.FC<MultiInputsForDimensionsProps> =
   value,
   onChange,
 }) => {
-  const [lengthValue, setLengthValue] = useState<number>(value?.length || 0);
-  const [heightValue, setHeightValue] = useState<number>(value?.height || 0);
-  const [widthValue, setWidthValue] = useState<number>(value?.width || 0);
+  const [lengthValue, setLengthValue] = useState<number | undefined>(value?.length || undefined);
+  const [heightValue, setHeightValue] = useState<number | undefined>(value?.height || undefined);
+  const [widthValue, setWidthValue] = useState<number | undefined>(value?.width || undefined);
 
   // Sync form value to local state when it changes
   useEffect(() => {
-    setLengthValue(value?.length || 0);
-    setHeightValue(value?.height || 0);
-    setWidthValue(value?.width || 0);
+    setLengthValue(value?.length || undefined);
+    setHeightValue(value?.height || undefined);
+    setWidthValue(value?.width || undefined);
   }, [value]);
 
   const handleUpdate = (updated: {
@@ -233,9 +233,9 @@ export const MultiInputsForDimensions: React.FC<MultiInputsForDimensionsProps> =
     height?: number;
   }) => {
     const updatedValue = {
-      length: updated.length ?? lengthValue,
-      width: updated.width ?? widthValue,
-      height: updated.height ?? heightValue,
+      length: updated.length ?? lengthValue!,
+      width: updated.width ?? widthValue!,
+      height: updated.height ?? heightValue!,
     };
     onChange(updatedValue);
   };

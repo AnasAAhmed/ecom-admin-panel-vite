@@ -1,28 +1,29 @@
 import { API_BASE } from "../App";
 
-export const validateImages = async (files: File[], isCollectionSize: boolean = false) => {
-    const MAX_FILES = isCollectionSize ? 1 : 4;
+export const validateImages = async (files: File[], isCollectionSize: boolean = false, isSeparate: boolean = false) => {
+    const MAX_FILES = isCollectionSize ? 1 : 5;
     const MAX_SIZE_MB = 3;
 
     if (files.length > MAX_FILES) {
-        return { valid: false, message: "You can only upload up to 4 images." };
+        return { valid: false, message: `You can only upload upto ${isCollectionSize ? 1 : 5} images${isSeparate ? ' at a time' : '.'}` };
     }
 
     for (const file of files) {
         if (file.size > MAX_SIZE_MB * 1024 * 1024) {
             return { valid: false, message: `Each image must be 3MB or less.` };
         }
-
-        const { valid: aspectValid, width, height, ratio } = await checkAspectRatio(file, isCollectionSize);
-        if (!aspectValid) {
-            return { valid: false, message: `Image with dimensions ratio:${ratio} & ${width}x${height} does not meet the required ${isCollectionSize ? '16:9' : '1:1 or 4:3'} aspect ratio.` };
+        if (!isSeparate) {
+            const { valid: aspectValid, width, height, ratio } = await checkAspectRatio(file, isCollectionSize);
+            if (!aspectValid) {
+                return { valid: false, message: `Image with dimensions ratio:${ratio} & ${width}x${height} does not meet the required ${isCollectionSize ? '16:9' : '1:1 or 4:3'} aspect ratio.` };
+            }
         }
     }
 
     return { valid: true };
 };
 
-const checkAspectRatio = (
+export const checkAspectRatio = (
     file: File,
     isCollectionSize: boolean
 ): Promise<{ valid: boolean; width: number; height: number, ratio: number }> => {
@@ -74,9 +75,50 @@ export const uploadImages = async ({ images, removeImages, isConvert = false }: 
         return data;
     } catch (err) {
         console.error("[image_upload_error]", err);
-        throw err;
+        throw new Error((err as Error).message);
     }
 };
+
+/**
+ * Get the closest common aspect ratio name (like "4:3" or "16:9") for given dimensions.
+ * If no ratio is close within the tolerance, returns e.g. "Custom (1.33:1)".
+ */
+export function getClosestAspectRatioName(width:number, height:number, tolerance = 0.02) {
+    // Ensure ratio >= 1 by dividing larger by smaller
+    let ratio = width >= height ? width / height : height / width;
+    
+    // Define standard aspect ratios (value = numeric ratio, name = label)
+    const standard = [
+        { name: '1:1',    value: 1/1 },
+        { name: '5:4',    value: 5/4 },
+        { name: '4:3',    value: 4/3 },
+        { name: '3:2',    value: 3/2 },
+        { name: '16:10',  value: 16/10 },
+        { name: '5:3',    value: 5/3 },
+        { name: '16:9',   value: 16/9 },
+        { name: '21:9',   value: 21/9 }
+        // add more if needed
+    ];
+    
+    // Find the standard ratio with the smallest difference
+    let closest = null;
+    let minDiff = Infinity;
+    for (const r of standard) {
+        const diff = Math.abs(ratio - r.value);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closest = r;
+        }
+    }
+    // If within tolerance (e.g. 2%), use the matched ratio name
+    if (closest && minDiff <= tolerance * closest.value) {
+        return closest.name;
+    }
+    // Otherwise format as custom ratio
+    const rounded = (Math.round(ratio * 100) / 100).toFixed(2);
+    return `Custom (${rounded}:1)`;
+}
+
 
 // const dimensionCheck = async (file: File) => {
 //     return new Promise<{ valid: boolean; width: number; height: number }>((resolve) => {

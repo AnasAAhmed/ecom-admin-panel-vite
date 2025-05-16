@@ -21,6 +21,8 @@
     "@tailwindcss/vite": "^4.1.5",
     "@tanstack/react-query": "^5.75.5",
     "@tanstack/react-table": "^8.21.3",
+    "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/react-editor": "^3.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^0.2.1",

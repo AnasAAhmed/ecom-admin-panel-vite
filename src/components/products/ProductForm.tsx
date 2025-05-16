@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-
+import '@toast-ui/editor/dist/toastui-editor.css';
+import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 import { Separator } from "../ui/separator";
 import {
   Form,
@@ -14,10 +15,10 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import ImageUpload from "../custom ui/ImageUpload";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import Delete from "../custom ui/Delete";
-import { MultiInputsForDimensions,MultiTextForTag, MultiTextForVariants } from "../custom ui/MultiText";
+import { MultiInputsForDimensions, MultiTextForTag, MultiTextForVariants } from "../custom ui/MultiText";
 import MultiSelect from "../custom ui/MultiSelect";
 import { InfoIcon, Loader2, LoaderIcon } from "lucide-react";
 import { Label } from "../ui/label";
@@ -26,6 +27,8 @@ import { Button } from "../ui/button";
 import { API_BASE } from "../../App";
 import { uploadImages } from "../../lib/image-actions";
 import { useQueryClient } from "@tanstack/react-query";
+import { Editor } from "@toast-ui/react-editor";
+import { initialText } from "../../lib/utils";
 
 
 const formSchema = z.object({
@@ -34,8 +37,8 @@ const formSchema = z.object({
     .max(60, "Title must be at most 60 characters long")
     .regex(/^[a-zA-Z0-9\s]+$/, "Title must not contain any symbols"),
   description: z.string().min(2).max(400).trim(),
-  media: z.array(z.string()).max(4),
   category: z.string().min(2),
+  detailDesc: z.string(),
   collections: z.array(z.string()),
   tags: z.array(z.string()),
   variants: z.array(
@@ -76,7 +79,7 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isLoading = false, error }) => {
   const router = useNavigate();
-
+  const editorRef = useRef<any>(null);
   /*it will contain all current images url at first then
   all images url(that need to be remove/delete from cloud storage) will be remove in this array for ui/ux */
   const [oldImages, setOldImages] = useState<string[] | undefined>(initialData?.media || []);
@@ -115,12 +118,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
         category: "",
         collections: [],
         tags: [],
+        detailDesc: '',
         variants: [],
-        stock: 0,
-        weight: 0,
+        stock: undefined,
+        weight: undefined,
         dimensions: {},
-        price: 0,
-        expense: 0,
+        price: undefined,
+        expense: undefined,
       },
   });
   const handleKeyPress = (
@@ -155,17 +159,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
         collections: [],
         tags: [],
         variants: [],
-        weight: 0,
+        detailDesc: '',
+        weight: undefined,
         dimensions: {},
-        stock: 0,
-        price: 0,
-        expense: 0,
+        stock: undefined,
+        price: undefined,
+        expense: undefined,
       });
   };
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-
     if ((!files || files.length === 0) && (!oldImages || oldImages.length === 0)) {
       toast.error("At least one product image is required.");
       return;
@@ -207,6 +211,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
         const errorMessage = await res.text();
         throw new Error(`${errorMessage} — Product ${initialData ? "update" : "creation"} failed.`);
       }
+      toast.dismiss();
       toast.success(`Product ${initialData ? "updated" : "created"} successfully.`);
       queryClient.invalidateQueries({ queryKey: ['products'] });
       if (initialData) {
@@ -221,10 +226,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
       }
     } catch (err) {
       console.error("[product_submit_error]", err);
+      toast.dismiss();
       toast.error(`Something went wrong. ${(err as Error).message}`);
     } finally {
       setIsSubmtting(false);
-      toast.dismiss();
     }
   };
 
@@ -506,6 +511,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
             />
 
           </div>
+          <Controller
+            name="detailDesc"
+            control={form.control}
+            defaultValue=""
+            render={({ field }) => (
+              <Editor
+                ref={editorRef}
+                initialValue={field.value || initialText}
+                previewStyle="vertical"
+                height="400px"
+                initialEditType="wysiwyg"
+                useCommandShortcut={true}
+                onChange={() => {
+                  const html = editorRef.current?.getInstance().getHTML();
+                  field.onChange(html);
+                }}
+              />
+            )}
+          />
 
           <div className="flex gap-10">
             <Button type="submit" disabled={isSubmtting}>
@@ -520,6 +544,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
           </div>
         </form>
       </Form>
+      {JSON.stringify(form.formState.errors).replace('{}','')}
     </div>
   );
 };

@@ -80,10 +80,10 @@ const navLinks = [
     tooltip: "Mongodb Dashboard"
   },
   {
-    url: "https://uploadthing.com/dashboard/anasaahmed-personal-team/e1s0bwzoxc/files",
+    url: "/image-upload",
     icon: Image,
-    label: "Uploadthing Dashboard",
-    tooltip: "Uploadthing Dashboard"
+    label: "Upload Image",
+    tooltip: "Upload Image"
   },
 ];
 export function AppSidebar() {
@@ -109,7 +109,7 @@ export function AppSidebar() {
 
     }
   }
- 
+
 
   return (
     <Sidebar collapsible="icon">
@@ -180,7 +180,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Tp Dashboards</SidebarGroupLabel>
+          <SidebarGroupLabel>Others</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {navLinks.slice(8, 11).map((item) => (
@@ -191,7 +191,7 @@ export function AppSidebar() {
                   >
                     <Link
                       to={item.url}
-                      target="_blank"
+                      target={item.url.startsWith('http') ? '_blank' : "_self"}
                       className="flex items-center gap-3 w-full px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-md transition-all"
                     >
                       <item.icon className="w-5 h-5 shrink-0" />

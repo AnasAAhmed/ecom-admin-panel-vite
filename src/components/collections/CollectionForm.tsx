@@ -97,15 +97,16 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
       if (initialData) {
         queryClient.invalidateQueries({ queryKey: ['collection', initialData._id] });
       }
+      toast.dismiss();
       toast.success(`Collection ${initialData ? "updated" : "created"}`);
       router("/collections");
 
     } catch (err) {
       console.log("[collections_POST]", err);
+      toast.dismiss();
       toast.error((err as Error).message);
     } finally {
       setLoading(false);
-      toast.dismiss();
     }
   };
 

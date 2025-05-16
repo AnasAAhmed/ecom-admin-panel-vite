@@ -2,9 +2,10 @@ import { Plus, Trash } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { validateImages } from "../../lib/image-actions";
+import { getClosestAspectRatioName, validateImages } from "../../lib/image-actions";
 import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
+import { useEffect, useState } from "react";
 
 
 // interface ImageUploadProps {
@@ -61,6 +62,7 @@ interface ImageUploadProps {
   value: File[];
   isConvert: boolean;
   isCollection?: boolean;
+  isSeparate?: boolean;
   onIsConvert: (value: boolean) => void;
   onImagesRemove: (value: string) => void;
   onChange: (value: File[]) => void;
@@ -68,7 +70,23 @@ interface ImageUploadProps {
   initialImages?: string[]
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ isCollection = false, onImagesRemove, initialImages, onChange, isConvert, onIsConvert, onRemove, value }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ isSeparate = false, isCollection = false, onImagesRemove, initialImages, onChange, isConvert, onIsConvert, onRemove, value }) => {
+  const [ratios, setRatios] = useState<string[]>([]);
+
+  useEffect(() => {
+    const promises = value.map((file) => {
+      return new Promise<string>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const name = getClosestAspectRatioName(img.naturalWidth, img.naturalHeight);
+          resolve(name);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    });
+
+    Promise.all(promises).then(setRatios);
+  }, [value]);
   const handleIsConvertChange = async (value: boolean) => {
     const booleanValue = Boolean(value);
     onIsConvert(booleanValue);
@@ -88,7 +106,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isCollection = false, onImage
         "Please prefer uploading images in .webp or .avif format for better performance and efficient storage. While formats like .jpg and .png are supported on the frontend (via Next.js <Image />) which turns any image in webp anyway but, optimized formats help reduce storage size and load faster."
       );
     }
-    const result = await validateImages([...value, ...files], isCollection);
+    const result = await validateImages([...value, ...files], isCollection, isSeparate);
     if (!result.valid) {
       toast.warning(result.message);
       e.target.value = ''
@@ -127,6 +145,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isCollection = false, onImage
               >
                 New* (Unsave)
               </Badge>
+              {ratios[index] && (
+                <Badge title="Aspect ratio" className="bg-yellow-500 text-white">
+                  aspect ratio {ratios[index]}
+                </Badge>
+              )}
             </div>
             <img
               alt={"preview " + file.name}

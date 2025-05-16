@@ -26,6 +26,7 @@ import Loader from './components/custom ui/Loader';
 import { ModeToggle } from './components/ui/theme-toggle';
 import useDynamicMeta from './hooks/useDynamicMetaData';
 import Breadcrumb from './components/BreadCrumb';
+import ImageUploadPage from './pages/ImageUpload/page';
 
 export const API_BASE = import.meta.env.VITE_API_URL;
 function App() {
@@ -91,6 +92,7 @@ function App() {
                   <Route path="/products/new" element={<NewProduct />} />
                   <Route path="/products/edit/:id" element={<EditProduct />} />
                   <Route path="/orders/manage/:id" element={<OrderDetails />} />
+                  <Route path="/image-upload" element={<ImageUploadPage />} />
                 </Route>
               </Routes>
             </Suspense>

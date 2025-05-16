@@ -31,6 +31,7 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
     try {
       setLoading(true);
       const itemType = item;
+      toast.loading('Deleting ' + itemType + '...')
       const res = await fetch(`${API_BASE}/api/admin/${itemType}/${id}`, {
         method: "DELETE",
         credentials: 'include',
@@ -40,6 +41,7 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
         setLoading(false);
         setOpen(false);
         queryClient.invalidateQueries({ queryKey: [itemType] });
+        toast.dismiss();
         toast.success(`${item} deleted`);
         router(`/${itemType}`);
       } else {
@@ -49,6 +51,7 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
       setLoading(false);
       setOpen(false);
       console.log(err);
+      toast.dismiss();
       toast.error((err as Error).message || "Something went wrong! Please try again. ");
     }
   };
