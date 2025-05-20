@@ -88,6 +88,7 @@ const navLinks = [
 ];
 export function AppSidebar() {
   const { user, clearUser } = useAuth();
+
   async function logout() {
     try {
       if (!user) return;
@@ -101,15 +102,16 @@ export function AppSidebar() {
       }
 
       clearUser();
+      toast.dismiss();
+      toast.success("Logged out");
+
+      window.location.href = '/login';
 
     } catch (error) {
+      toast.dismiss();
       toast.error((error as Error).message);
-    } finally {
-      window.location.href = '/login'
-
     }
   }
-
 
   return (
     <Sidebar collapsible="icon">
