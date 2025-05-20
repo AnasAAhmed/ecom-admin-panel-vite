@@ -32,14 +32,8 @@ export const logoutUser = async () => {
         credentials: 'include'
     });
 
-    if (!res.ok) return await res.text(); 
+    return await res.text();
 
-    const contentType = res.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-        return await res.json(); 
-    } else {
-        return { message: await res.text() }; 
-    }
 };
 
 export const fetchAdminData = async () => {
