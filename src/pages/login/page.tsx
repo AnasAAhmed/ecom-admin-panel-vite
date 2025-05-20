@@ -9,7 +9,7 @@ export default function LoginPage() {
 
   return (
 
-    <div className="flex flex-col mt-20 sm:mt-14 h-screen items-center">
+    <div className="flex flex-col mt-10 sm:mt-5 h-screen items-center">
       < Card className="sm: w-[400px]">
         <CardHeader className='pb-0'>
           <img src="/logo.webp" alt="Logo hai bencho" className="rounded-full w-[110px] h-[30px]" />
