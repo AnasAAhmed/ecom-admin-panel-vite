@@ -97,13 +97,9 @@ export function AppSidebar() {
 
       const userFetch = await logoutUser();
 
-      if (typeof userFetch === 'string') {
-        throw new Error(userFetch);
-      }
-
       clearUser();
       toast.dismiss();
-      toast.success("Logged out");
+      toast.success(userFetch || "Logged out");
 
       window.location.href = '/login';
 
