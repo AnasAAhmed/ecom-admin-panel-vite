@@ -73,7 +73,7 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="text-gray-700 dark:text-gray-300" onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-          <Button disabled={loading} className="bg-red-600 hover:bg-red-500 disabled:opacity-35 text-white" onClick={onDelete}>
+          <Button disabled={loading} className="bg-red-600 hover:bg-red-500 disabled:opacity-35 text-white" onClick={() => onDelete()}>
             {loading ? <Loader className="animate-spin mx-[0.8rem]" /> : "Delete"}
           </Button>
         </AlertDialogFooter>
