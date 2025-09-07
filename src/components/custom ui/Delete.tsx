@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { API_BASE } from "../../App";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { Label } from "../ui/label";
 
 interface DeleteProps {
   item: 'products' | 'orders' | 'collections' | 'home-page';
@@ -25,6 +26,10 @@ interface DeleteProps {
 const Delete: React.FC<DeleteProps> = ({ item, id }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [deleteImageToo, setDeleteImageToo] = useState(() => {
+    const storedValue = localStorage.getItem('deleteImageToo');
+    return storedValue === 'true';
+  });
   const queryClient = useQueryClient();
   const router = useNavigate();
   const onDelete = async () => {
@@ -32,7 +37,7 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
       setLoading(true);
       const itemType = item;
       toast.loading('Deleting ' + itemType + '...')
-      const res = await fetch(`${API_BASE}/api/admin/${itemType}/${id}`, {
+      const res = await fetch(`${API_BASE}/api/admin/${itemType}/${id}?deleteImagesToo=${deleteImageToo}`, {
         method: "DELETE",
         credentials: 'include',
       });
@@ -56,6 +61,11 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
     }
   };
 
+  const handleDeleteImageToo = () => {
+    setDeleteImageToo(!deleteImageToo)
+    localStorage.setItem('deleteImageToo', String(!deleteImageToo))
+  }
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
@@ -69,6 +79,10 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
           <AlertDialogTitle className="text-red-500">Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this {item}.
+            {item == 'products' || item == 'collections' ? <span className="mt-3 flex items-center gap-1">
+              <input defaultChecked={Boolean(deleteImageToo)} onClick={() => handleDeleteImageToo()} type="checkbox" name="deleteImageToo" id="deleteImage" />
+              <Label htmlFor="deleteImage">Delete With images on the cloud</Label>
+            </span>:''}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -31,15 +31,16 @@ const fetchProducts = async (key: string, query: string, page: number, sort: str
 
 const Products = () => {
   const [searchParams] = useSearchParams();
-
+  const searchKey = searchParams.toString();
   const key = searchParams.get("key") || "";
   const query = searchParams.get("query") || "";
   const sortField = searchParams.get("sortField") || "";
   const sort = searchParams.get("sort") || "";
   const page = Number(searchParams.get("page")) || 0;
 
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["products", key, query, page, sort, sortField],
+    queryKey: ["products", searchKey],
     queryFn: () => fetchProducts(key, query, page, sort, sortField),
   });
 
@@ -51,11 +52,17 @@ const Products = () => {
     <div className="px-2 md:px-10 ">
       <div className="flex flex-col sm:flex-row items-center justify-between">
         <h1 className="text-xl sm:text-3xl font-semibold">
-          Products ({data ? data.totalProducts : 0}) {query && <span>Results for &quot;{query}&quot;</span>}
+          Products ({data ? data.totalProducts : 0})
+          {query &&
+            <>
+              <span>Results for &quot;{query}&quot;</span>
+              <span><Link to={'/products'}>&times;</Link></span>
+            </>
+          }
         </h1>
         <Link className="flex items-center" to={'/products/new'}>
           <Button variant={'default'} size={'sm'}>
-            Create Prodcut
+            Create Product
           </Button>
         </Link>
       </div>

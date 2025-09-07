@@ -15,12 +15,12 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import ImageUpload from "../custom ui/ImageUpload";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import Delete from "../custom ui/Delete";
 import { MultiInputsForDimensions, MultiTextForTag, MultiTextForVariants } from "../custom ui/MultiText";
 import MultiSelect from "../custom ui/MultiSelect";
-import { InfoIcon, Loader2, LoaderIcon } from "lucide-react";
+import { InfoIcon, LoaderIcon } from "lucide-react";
 import { Label } from "../ui/label";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -70,14 +70,8 @@ const formSchema = z.object({
   expense: z.coerce.number(),
 });
 
-interface ProductFormProps {
-  initialData?: ProductType | null;
-  collections: CollectionType[];
-  isLoading: boolean;
-  error?: string
-}
 
-const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isLoading = false, error }) => {
+const ProductForm = ({ initialData }: { initialData?: ProductType | null; }) => {
   const router = useNavigate();
   const editorRef = useRef<any>(null);
   /*it will contain all current images url at first then
@@ -184,14 +178,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
     try {
       setIsSubmtting(true);
       toast.loading(isConvert ? 'Converting & Uploading images...' : "Uploading images...");
-
       const uploadedUrls = await uploadImages({ images: files, isConvert, removeImages: imagesToRemove });
+      if (uploadedUrls) {
+        toast.success(uploadedUrls?.statusText)
+      }
       toast.dismiss();
       toast.loading(initialData ? "Updating product..." : "Creating product...");
 
+      const filteredOldImages = oldImages?.filter(
+        (img) => !imagesToRemove.includes(img)
+      ) || []
+
       const payload = {
         ...values,
-        media: uploadedUrls || oldImages,
+        media: uploadedUrls ? [...uploadedUrls!.data!.uploaded!, ...filteredOldImages] : oldImages,
       };
 
       const url = initialData
@@ -233,7 +233,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
     }
   };
 
+  useEffect(() => {
+    const editorInstance = editorRef.current.getInstance();
 
+    if (editorInstance) {
+      const editableEl = editorInstance?.editor?.el?.querySelector('iframe')?.contentWindow?.document?.activeElement;
+      editableEl?.blur();
+    }
+
+  }, []);
   return (
     <div className="p-10">
       <div className="flex flex-col sm:flex-row items-center gap-3 justify-between">
@@ -412,35 +420,31 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
                 </FormItem>
               )}
             />
-            {collections && collections.length > 0 && (
-              <FormField
-                control={form.control}
-                name="collections"
-                render={({ field }) => (
-                  <FormItem>
+            <FormField
+              control={form.control}
+              name="collections"
+              render={({ field }) => (
+                <FormItem>
 
-                    <FormLabel>Collections</FormLabel>
-                    <FormControl className="max-md:mb-4">
-                      {isLoading ? <Loader2 className="animate-spin" /> : <MultiSelect
-                        placeholder="Collections"
-                        collections={collections}
-                        value={field.value}
-                        onChange={(_id) =>
-                          field.onChange([...field.value, _id])
-                        }
-                        onRemove={(idToRemove) =>
-                          field.onChange([
-                            ...field.value.filter((id) => id !== idToRemove),
-                          ])
-                        }
-                      />}
-                    </FormControl>
-                    {error && <p className="text-destructive text-sm">{error}</p>}
-                    <FormMessage className="text-destructive font-medium text-[15px]" />
-                  </FormItem>
-                )}
-              />
-            )}
+                  <FormLabel>Collections</FormLabel>
+                  <FormControl className="max-md:mb-4">
+                    <MultiSelect
+                      placeholder="Collections"
+                      value={field.value}
+                      onChange={(_id) =>
+                        field.onChange([...field.value, _id])
+                      }
+                      onRemove={(idToRemove) =>
+                        field.onChange([
+                          ...field.value.filter((id) => id !== idToRemove),
+                        ])
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage className="text-destructive font-medium text-[15px]" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="tags"
@@ -544,7 +548,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, collections, isL
           </div>
         </form>
       </Form>
-      {JSON.stringify(form.formState.errors).replace('{}','')}
+      {JSON.stringify(form.formState.errors).replace('{}', '')}
     </div>
   );
 };

@@ -110,14 +110,14 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               <SidebarMenuItem >
                 <SidebarMenuButton asChild>
-                  <SidebarTrigger2 className="cursor-pointer border gap-3 h-12 bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50" title={'Dashboard'} >
+                  <SidebarTrigger2 className="cursor-w-resize border gap-3 h-12 bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50" title={'Dashboard'} >
                     <img src="/logo.png" alt="Logo hai bencho" className="rounded-full w-8 h-8" />
                     <img src="/logo.webp" alt="Logo hai bencho" className="rounded-full w-[110px] h-[30px]" />
                   </SidebarTrigger2>

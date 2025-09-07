@@ -16,7 +16,7 @@ export const columns: ColumnDef<CustomerType>[] = [
             <Tooltip >
               <p
                 title={row.original.name}
-                className="hover:text-blue-400 cursor-pointer max-w-20 rounded-md"
+                className="hover:text-blue-400 truncate cursor-pointer max-w-20 rounded-md"
 
               >
                 {row.original.name}
@@ -43,7 +43,14 @@ export const columns: ColumnDef<CustomerType>[] = [
     accessorKey: "googleId",
     header: "Google-Id",
     cell: ({ row }) => {
-      return <>{row.original.googleId || 'null'}</>
+      return <p className="hover:text-blue-400 truncate cursor-pointer msax-w-20">{row.original.googleId || 'null'}</p>
+    },
+  },
+  {
+    accessorKey: "city",
+    header: "Location",
+    cell: ({ row }) => {
+      return <>{row.original.city + ', ' + row.original.country}</>
     },
   },
   {

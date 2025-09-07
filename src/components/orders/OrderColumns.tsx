@@ -50,6 +50,10 @@ export const columns: ColumnDef<OrderColumnType>[] = [
     accessorKey: "isPaid",
     header: "Paid",
   },
+   {
+    accessorKey: "method",
+    header: "Method",
+  },
   {
     accessorKey: "status",
     header: "Status",

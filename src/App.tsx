@@ -63,7 +63,7 @@ function App() {
           {user && <AppSidebar />}
           <main className='w-full'>
 
-            <SidebarTrigger title={user ? 'Press Crtl + B To Open Sidebar' : 'Login first to open sidebar'} className='cursor-pointer border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 mx-[9.5px] mt-[9.5px]' />
+            <SidebarTrigger title={user ? 'Press Crtl + B To Open Sidebar' : 'Login first to open sidebar'} className='cursor-pointer md:hidden border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 mx-[9.5px] mt-[9.5px]' />
             <ModeToggle />
             <Breadcrumb/>
             <Suspense fallback={'<Loader />'}>

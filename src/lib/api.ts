@@ -6,15 +6,32 @@ type OrderResponse = {
     totalPages: number;
     totalOrders: number;
 };
-export const fetchOrders = async (key: string, query: string, page: number): Promise<OrderResponse> => {
+type SingleOrderResponse = Order;
+type CollectionsResponse = {
+    data: CollectionType[];
+    totalPages: number;
+    totalCollections: number;
+};
+export const fetchOrders = async (key: string, query: string, page: number, sort: string, field: string): Promise<OrderResponse> => {
 
 
-    const res = await fetch(`${API_BASE}/api/admin/orders?key=${key}&query=${query}&page=${page}`, {
+    const res = await fetch(`${API_BASE}/api/admin/orders?key=${key}&query=${query}&page=${page}&sort=${sort}&sortField=${field}`, {
         method: 'GET',
         credentials: "include",
 
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) { throw new Error(await res.text()) };
+    return res.json();
+};
+export const fetchSingleOrder = async (orderId: string): Promise<SingleOrderResponse> => {
+
+
+    const res = await fetch(`${API_BASE}/api/admin/orders/${orderId}`, {
+        method: 'GET',
+        credentials: "include",
+
+    });
+    if (!res.ok) { throw new Error(await res.text()) };
     return res.json();
 };
 export const fetchUser = async () => {
@@ -70,10 +87,10 @@ export const fetchHomePageData = async () => {
 
     return res.json();
 };
-export const fetchCollections = async () => {
+export const fetchCollections = async (key: string, query: string, page: number, sort: string, field: string): Promise<CollectionsResponse> => {
 
-    const res = await fetch(API_BASE + "/api/admin/collections", {
-        method: "GET",
+    const res = await fetch(API_BASE + `/api/admin/collections?key=${key}&query=${query}&page=${page}&sort=${sort}&sortField=${field}`, {
+        method: 'GET',
         credentials: "include",
 
     });

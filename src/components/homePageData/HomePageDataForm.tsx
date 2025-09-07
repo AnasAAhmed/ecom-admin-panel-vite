@@ -428,7 +428,7 @@ const HomePageDataForm: React.FC<HomePageDataFormProps> = ({ initialData }) => {
                                     disabled={fields.length === 1}
                                     size={'icon'}
                                     onClick={() => remove(index)}
-                                    className="bg-destructive mt-2"
+                                    className="text-primary bg-destructive mt-2"
                                 >
                                     &times;
                                 </Button>

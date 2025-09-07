@@ -60,7 +60,7 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
-    if (!files) {
+    if (!files && !oldImage) {
       toast.error("Media images are missing");
       return;
     }
@@ -68,15 +68,22 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
     try {
       setLoading(true);
 
-      toast.loading(isConvert ? 'Converting & Uploading images' : "Uploading images...");
+      let uploadedUrl: string | null = null
+      if (files) {
+        toast.loading(isConvert ? 'Converting & Uploading image' : "Uploading image...");
+        const uploadedImages = await uploadImages({ images: [files], isConvert, removeImages: [imagesToRemove!] });
+        if (uploadedImages) {
+          uploadedUrl = uploadedImages?.data.uploaded![0]
+          toast.success(uploadedImages?.statusText)
+        }
+      }
 
-      const uploadedUrls = await uploadImages({ images: [files], isConvert, removeImages: [imagesToRemove!] });
       toast.dismiss();
       toast.loading(initialData ? "Updating collection..." : "Creating collection...");
 
       const payload = {
         ...values,
-        image: uploadedUrls![0] || oldImage,
+        image: uploadedUrl || oldImage,
       };
 
       const url = initialData

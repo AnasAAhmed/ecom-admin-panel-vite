@@ -14,50 +14,73 @@ const ImageUploadPage = () => {
     const [isConvert, setIsConvert] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
 
-    // Images to remove manually or via UI
+    // Images to remove manually or via URL
     const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
     const [manualRemoveInput, setManualRemoveInput] = useState<string>("");
 
     const [returnedUrls, setReturnedUrls] = useState<string[]>([]);
+    const [deleteResult, setDeleteResult] = useState<{
+        success: boolean;
+        deletedCount: number;
+    } | undefined>(undefined);
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!files || files.length === 0) {
-            toast.error("At least one image is required.");
+        const manualURLs = manualRemoveInput
+            .split(",")
+            .map(url => url.trim())
+            .filter(Boolean) || null;
+
+        if (!files.length && !manualURLs.length) {
+            toast.error("At least one image is required OR Delete Image Url.");
             return;
         }
 
         try {
             setIsSubmtting(true);
-            toast.loading(isConvert ? 'Converting & Uploading images...' : "Uploading images...");
+            let toastMsg = "";
+
+            if (files?.length > 0 && manualURLs.length > 0) {
+                toastMsg = isConvert
+                    ? "Converting, uploading & deleting images..."
+                    : "Uploading & deleting images...";
+            } else if (files?.length > 0) {
+                toastMsg = isConvert
+                    ? "Converting & uploading images..."
+                    : "Uploading images...";
+            } else if (manualURLs.length > 0) {
+                toastMsg = "Deleting images...";
+            }
+
+            const loadingId = toast.loading(toastMsg);
 
             // Merge manually entered URLs (line-separated) with selected ones
-            const manualURLs = manualRemoveInput
-                .split("\n")
-                .map(url => url.trim())
-                .filter(Boolean); // Remove empty lines
-
             const mergedRemoveList = Array.from(new Set([...imagesToRemove, ...manualURLs]));
 
-            const uploadedUrls = await uploadImages({
+            const res = await uploadImages({
                 images: files,
                 isConvert,
                 removeImages: mergedRemoveList
             });
+            if (res) {
+                if (Array.isArray(res.data.uploaded)) {
+                    setReturnedUrls(res.data.uploaded);
+                    toast.success(res.statusText);
 
-            if (uploadedUrls) {
-                setReturnedUrls(uploadedUrls);
+                } else {
+                    toast.success(res.statusText)
+                }
+                setDeleteResult(res.data.deleteRes)
             }
 
-            toast.dismiss();
-            toast.success(`Uploaded successfully.`);
+            toast.dismiss(loadingId);
         } catch (err) {
+            toast.dismiss();
             console.error("[image_upload_error]", err);
             toast.error(`Something went wrong. ${(err as Error).message}`);
         } finally {
             setIsSubmtting(false);
-            toast.dismiss();
         }
     };
 
@@ -95,15 +118,16 @@ const ImageUploadPage = () => {
                 </div>
 
                 <Button type="submit" disabled={isSubmtting}>
-                    {isSubmtting ? "Uploading..." : "Upload"}
+                    {isSubmtting ? "Submitting..." : "Submit"}
                 </Button>
             </form>
             <Button type="submit" disabled={isSubmtting}>
                 <Link to={'https://uploadthing.com/dashboard/anasaahmed-personal-team/e1s0bwzoxc/files'} target="_blank">
-                   Uploadthing dashboard
+                    Uploadthing dashboard
                 </Link>
-                </Button>
-                    <p className="text-muted-foreground text-sm">Uploaded URLs: {JSON.stringify(returnedUrls)}</p>
+            </Button>
+            <p className="text-muted-foreground text-sm">Uploaded URLs: {JSON.stringify(returnedUrls)}</p>
+            <p className="text-muted-foreground text-sm">DeleteResult: {JSON.stringify(deleteResult)}</p>
         </div>
     );
 };

@@ -25,7 +25,7 @@ export const columns: ColumnDef<ProductType>[] = [
           <TooltipContent side="right" className="sblock">
             <Link
               title={"Edit " + row.original.title}
-              to={`/products/${row.original._id}`}
+              to={'/products/edit/'+row.original?.title+'?id='+row.original._id}
               className="hover:text-blue-400 max-w-28 rounded-md"
 
             >

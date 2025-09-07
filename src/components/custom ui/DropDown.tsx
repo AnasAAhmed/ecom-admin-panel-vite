@@ -11,8 +11,8 @@ const DropDown = ({ currentValue, setSearchValue, values }: DropSearchProps) => 
 
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="default">
-                    <span>{currentValue ? currentValue : "Filters"}</span>
+                <Button title={`Search with ${currentValue} field`} variant="outline" size="default">
+                    <span>{currentValue ? 'Search: '+currentValue : "Filters"}</span>
                     <ChevronsUpDown className={`transition-all duration-200 h-5 w-5 `} />
                 </Button>
             </DropdownMenuTrigger>

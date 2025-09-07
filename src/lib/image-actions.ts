@@ -45,16 +45,26 @@ export const checkAspectRatio = (
     });
 };
 type UpldImgs = {
-    images: File[], removeImages?: string[]; isConvert?: boolean
+    images?: File[], removeImages?: string[]; isConvert?: boolean
 }
-export const uploadImages = async ({ images, removeImages, isConvert = false }: UpldImgs): Promise<string[] | null> => {
+export const uploadImages = async (
+    { images, removeImages, isConvert = false }: UpldImgs): Promise<{
+        data:{uploaded?: string[];
+        deleteRes?: {
+            success: boolean;
+            deletedCount: number;
+        }};
+        statusText:string;
+    } | null> => {
     const formData = new FormData();
 
-    if (!images || images.length == 0) return null;;
+    if (!images?.length && !removeImages?.length) return null;
     if (removeImages) {
         removeImages.forEach((image) => formData.append("removeImageUrls", image));
     }
-    images.forEach((image) => formData.append("images", image));
+    if (images) {
+        images.forEach((image) => formData.append("images", image));
+    }
 
     try {
         const res = await fetch(`${API_BASE}/api/admin/upload-images${isConvert ? '?isConvert=true' : ''}`, {
@@ -66,13 +76,8 @@ export const uploadImages = async ({ images, removeImages, isConvert = false }: 
         if (!res.ok) throw new Error("Image upload failed: " + res.statusText);
 
         const data = await res.json();
-        console.log(data);
-        if (!Array.isArray(data)) {
 
-            throw new Error("Image URLs missing or malformed")
-        }
-
-        return data;
+        return {data,statusText:res.statusText};
     } catch (err) {
         console.error("[image_upload_error]", err);
         throw new Error((err as Error).message);
@@ -83,23 +88,23 @@ export const uploadImages = async ({ images, removeImages, isConvert = false }: 
  * Get the closest common aspect ratio name (like "4:3" or "16:9") for given dimensions.
  * If no ratio is close within the tolerance, returns e.g. "Custom (1.33:1)".
  */
-export function getClosestAspectRatioName(width:number, height:number, tolerance = 0.02) {
+export function getClosestAspectRatioName(width: number, height: number, tolerance = 0.02) {
     // Ensure ratio >= 1 by dividing larger by smaller
     let ratio = width >= height ? width / height : height / width;
-    
+
     // Define standard aspect ratios (value = numeric ratio, name = label)
     const standard = [
-        { name: '1:1',    value: 1/1 },
-        { name: '5:4',    value: 5/4 },
-        { name: '4:3',    value: 4/3 },
-        { name: '3:2',    value: 3/2 },
-        { name: '16:10',  value: 16/10 },
-        { name: '5:3',    value: 5/3 },
-        { name: '16:9',   value: 16/9 },
-        { name: '21:9',   value: 21/9 }
+        { name: '1:1', value: 1 / 1 },
+        { name: '5:4', value: 5 / 4 },
+        { name: '4:3', value: 4 / 3 },
+        { name: '3:2', value: 3 / 2 },
+        { name: '16:10', value: 16 / 10 },
+        { name: '5:3', value: 5 / 3 },
+        { name: '16:9', value: 16 / 9 },
+        { name: '21:9', value: 21 / 9 }
         // add more if needed
     ];
-    
+
     // Find the standard ratio with the smallest difference
     let closest = null;
     let minDiff = Infinity;

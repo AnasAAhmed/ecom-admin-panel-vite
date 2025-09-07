@@ -9,6 +9,13 @@ export const pageTitle = (title: string) => {
     .replace(/\//g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
 };
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
 
 export const initialText=`<h2 style="margin-bottom: 8px;">📝 Product Description Guidelines</h2>
 <ul>

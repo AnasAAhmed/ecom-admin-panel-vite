@@ -6,11 +6,12 @@ import {
 } from "../ui/command";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { fetchCollections } from "../../lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 interface MultiSelectProps {
   placeholder: string;
-  collections: CollectionType[];
   value: string[];
   onChange: (value: string) => void;
   onRemove: (value: string) => void;
@@ -18,13 +19,20 @@ interface MultiSelectProps {
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   placeholder,
-  collections,
   value,
   onChange,
   onRemove,
 }) => {
+  // const [searchParams] = useSearchParams();
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["collections", ''],
+    queryFn: () => fetchCollections('', '', 0, '', ''),
+  });
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
+
+  if (isLoading) { return <Loader2 className="animate-spin" />; }
+  if (!data?.data.length) return isError ? JSON.stringify(data) : JSON.stringify(error);
 
   let selected: CollectionType[];
 
@@ -32,11 +40,11 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     selected = [];
   } else {
     selected = value.map((id) =>
-      collections.find((collection) => collection._id === id)
+      data.data.find((collection) => collection._id === id)
     ) as CollectionType[];
   }
 
-  const selectables = collections.filter((collection) => !selected.includes(collection)); 
+  const selectables = data.data.filter((collection) => !selected.includes(collection));
 
   return (
     <Command className="overflow-visible bg-primary-foreground">
@@ -72,7 +80,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                   setInputValue("");
                 }}
                 className="hover:bg-grey-2 cursor-pointer font-medium text-[14px]"
-            >
+              >
                 {collection.title}
               </CommandItem>
             ))}

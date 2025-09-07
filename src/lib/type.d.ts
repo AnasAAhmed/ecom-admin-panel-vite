@@ -98,13 +98,36 @@ type OrderItemType = {
   size: string;
   quantity: number;
 }
+type Lol = { street: string; city: string; state: string; postalCode: string; country: string; phone: string; }
+type Order = {
+    _id: string
+    customerEmail: String,
+    customerPhone: String,
+    products: [OrderItemType],
+    shippingAddress: Lol,
+    shippingRate: string,
+    totalAmount: number,
+    currency: string,
+    isPaid: string,
+    method: string,
+    status: string,
+    statusHistory: {
+        status: string;
+        changedAt: Date;
+        _id: string;
+    }[];
+    exchangeRate: number,
+    createdAt: Date,
 
+}
 type CustomerType = {
   _id: string;
   googleId?: string;
   image: string;
   ordersCount: number;
   name: string;
+  city: string;
+  country: string;
   email: string;
   orders: string[]
   createdAt: string;

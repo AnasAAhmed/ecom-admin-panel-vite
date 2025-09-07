@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import NotFound from "../components/custom ui/NotFound";
 import { Separator } from "../components/ui/separator";
@@ -16,38 +16,47 @@ type CustomerResponse = {
   totalCustomers: number;
 };
 
-const fetchCustomers = async (key: string, query: string, page: number): Promise<CustomerResponse> => {
- 
+const fetchCustomers = async (key: string, query: string, page: number,sort:string,sortField:string): Promise<CustomerResponse> => {
 
-  const res = await fetch(`${API_BASE}/api/admin/customers?key=${key}&query=${query}&page=${page}`, {
+
+  const res = await fetch(`${API_BASE}/api/admin/customers?key=${key}&query=${query}&page=${page}&sort=${sort}&sortField=${sortField}`, {
     method: 'GET',
-    credentials:'include'
+    credentials: 'include'
   });
   if (!res.ok) {
     toast.error(await res.text())
     throw new Error(await res.text());
   }
+  toast.success(res.statusText);
   return res.json();
 };
 
 const Customers = () => {
   const [searchParams] = useSearchParams();
+  const searchKey = searchParams.toString();
   const key = searchParams.get("key") || "";
   const query = searchParams.get("query") || "";
   const page = Number(searchParams.get("page")) || 0;
+  const sortField = searchParams.get("sortField") || "";
+  const sort = searchParams.get("sort") || "";
 
-  const { data, isLoading, isError,error} = useQuery({
-    queryKey: ["customers", key, query, page],
-    queryFn: () => fetchCustomers(key, query, page),
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["customers", searchKey],
+    queryFn: () => fetchCustomers(key, query, page,sort,sortField),
   });
 
-  if (typeof data ==='string' || isError) return <NotFound errorMessage={JSON.stringify(data) + error?.message} />
+  if (typeof data === 'string' || isError) return <NotFound errorMessage={JSON.stringify(data) + error?.message} />
 
   return (
     <div className="px-10">
       <p className="text-xl sm:text-3xl font-semibold">
         Customers ({data ? data.totalCustomers : 0}){" "}
-        {query && <span>Results for &quot;{query}&quot;</span>}
+        {query &&
+          <>
+            <span>Results for &quot;{query}&quot;</span>
+            <span><Link to={'/customers'}>&times;</Link></span>
+          </>
+        }
       </p>
 
       <Separator className="bg-gray-8-- my-4" />
@@ -56,7 +65,7 @@ const Customers = () => {
 
       <ScalableDataTable
         columns={columns}
-        data={data?.data!||[]}
+        data={data?.data! || []}
         isLoading={isLoading}
         currentPage={page}
         totalPage={data?.totalPages!}

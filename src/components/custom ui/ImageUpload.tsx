@@ -6,57 +6,7 @@ import { getClosestAspectRatioName, validateImages } from "../../lib/image-actio
 import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
 import { useEffect, useState } from "react";
-
-
-// interface ImageUploadProps {
-//   value: string[];
-//   onChange: (value: string) => void;
-//   onRemove: (value: string) => void;
-// }
-
-// const ImageUpload: React.FC<ImageUploadProps> = ({
-//   onChange,
-//   onRemove,
-//   value,
-// }) => {
-//   const onUpload = (result: any) => {
-//     onChange(result.info.secure_url);
-//   };
-
-//   return (
-//     <div>
-//       <div className="mb-4 flex flex-wrap items-center gap-4">
-//         {value.map((url) => (
-//           <div key={url} className="relative w-[200px] h-[200px]">
-//             <div className="absolute top-0 right-0 z-10">
-//               <Button type="button" onClick={() => onRemove(url)} size="sm" className="bg-destructive">
-//                 <Trash className="h-4 w-4" />
-//               </Button>
-//             </div>
-//             <img
-//               src={url}
-//               alt="collection"
-//               className="object-cover rounded-lg"
-//             />
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* <CldUploadWidget options={{ maxFiles: 4 }} uploadPreset="hhafeez" onUpload={onUpload}>
-//         {({ open }) => {
-//           return ( */}
-//             <Button type="button" onClick={() => open()}>
-//               <Plus className="h-4 w-4 mr-2" />
-//               Upload Image
-//             </Button>
-//           {/* );
-//         }}
-//       </CldUploadWidget> */}
-//     </div>
-//   );
-// };
-
-// export default ImageUpload;
+import { formatFileSize } from "../../lib/utils";
 
 interface ImageUploadProps {
   value: File[];
@@ -143,6 +93,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isSeparate = false, isCollect
                 title="Uploaded image"
                 className="bg-blue-500 text-white"
               >
+                {formatFileSize(file.size)}
+              </Badge>
+               <Badge
+                title="Uploaded image"
+                className="bg-blue-500 text-white"
+              >
                 New* (Unsave)
               </Badge>
               {ratios[index] && (
@@ -210,15 +166,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isSeparate = false, isCollect
       <p className="text-sm text-muted-foreground">
         Each image must be less than <strong>3MB</strong>.
       </p>
-      {invalidFormatFiles.length > 0 && <>
-        <input
-          type="checkbox"
-          onChange={() => handleIsConvertChange(!isConvert)}
-          className=""
-          id="isConvert"
-        />
-        <Label htmlFor="isConvert">Some of these four image are not optimized format etc. webp/avif  Convert images to webp and then save</Label>
-      </>
+      {invalidFormatFiles.length > 0 &&
+        <div className="flex items-center gap-1">
+          <input
+            type="checkbox"
+            onChange={() => handleIsConvertChange(!isConvert)}
+            className=""
+            id="isConvert"
+          />
+          <Label htmlFor="isConvert">Some of these four image are not optimized format etc. webp/avif  Convert images to webp and then save</Label>
+        </div>
       }
     </div>
   );

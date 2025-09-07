@@ -39,6 +39,7 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  toggleSidebarOnHover: () => void
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -91,6 +92,9 @@ function SidebarProvider({
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
+    const toggleSidebarOnHover = React.useCallback(() => {
+    return isMobile ? setOpenMobile((open) => !open) : setOpen(true)
+  }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -121,8 +125,9 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      toggleSidebarOnHover,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar,toggleSidebarOnHover]
   )
 
   return (
@@ -279,18 +284,21 @@ function SidebarTrigger({
 }
 function SidebarTrigger2({
   className,
+  title,
   children
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar ,toggleSidebarOnHover} = useSidebar()
 
   return (
     <div
+    title={title}
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       className={cn("size-7", className)}
       onClick={() => {
         toggleSidebar()
       }}
+      onMouseEnter={()=>toggleSidebarOnHover()}
     >
       {children}
     </div>
@@ -391,7 +399,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 no-scrollbar flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
