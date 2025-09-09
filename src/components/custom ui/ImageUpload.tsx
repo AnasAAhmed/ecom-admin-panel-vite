@@ -160,7 +160,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ isSeparate = false, isCollect
       <Button title="Image upload, intructions:1. max value of images should be (4), 2. Each image must be less then 3MB in size*" type="button" className="py-0 my-0">
         <Label htmlFor="imageUpload" className="flex justify-between items-center cursor-pointer">
           <Plus className="h-4 w-4 mr-2" />
-          Upload Image max (4)
+          Upload Image max ({isCollection?1:4})
         </Label>
       </Button>
       <p className="text-sm text-muted-foreground">

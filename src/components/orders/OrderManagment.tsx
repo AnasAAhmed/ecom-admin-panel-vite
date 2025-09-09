@@ -59,11 +59,11 @@ const OrderManagement = ({ orderId, currentStatus }: OrderManageProps) => {
     }
   };
 
-  const statusOptions = ["Delivered", "Canceled", "Shipped", "Processing"];
+  const statusOptions = ["delivered", "canceled", "shipped", "pending"];
 
   return (
     <div className="flex flex-wrap gap-3 items-center py-5">
-      <DropDown currentValue={newStatus} setSearchValue={setNewStatus} values={statusOptions} />
+      <DropDown isOrderStatusUpdate currentValue={newStatus} setSearchValue={setNewStatus} values={statusOptions} />
       <Delete item={"orders"} id={orderId} />
       {newStatus !== currentStatus && (
         <Button onClick={handleSubmit}>

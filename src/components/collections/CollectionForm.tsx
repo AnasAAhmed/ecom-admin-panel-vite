@@ -37,7 +37,7 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
   const router = useNavigate();
   const [isConvert, setIsConvert] = useState(false);
   const [oldImage, setOldImage] = useState<string>(initialData?.image! || '');
-  const [files, setFiles] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [imagesToRemove, setImagesToRemove] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -60,8 +60,12 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
-    if (!files && !oldImage) {
+    if (!file && !oldImage) {
       toast.error("Media images are missing");
+      return;
+    }
+    if (file && oldImage) {
+      toast.error("There can only be one image");
       return;
     }
 
@@ -69,9 +73,9 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
       setLoading(true);
 
       let uploadedUrl: string | null = null
-      if (files) {
+      if (file) {
         toast.loading(isConvert ? 'Converting & Uploading image' : "Uploading image...");
-        const uploadedImages = await uploadImages({ images: [files], isConvert, removeImages: [imagesToRemove!] });
+        const uploadedImages = await uploadImages({ images: [file], isConvert, removeImages: [imagesToRemove!] });
         if (uploadedImages) {
           uploadedUrl = uploadedImages?.data.uploaded![0]
           toast.success(uploadedImages?.statusText)
@@ -82,7 +86,8 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
       toast.loading(initialData ? "Updating collection..." : "Creating collection...");
 
       const payload = {
-        ...values,
+        title:values.title,
+        description:values.description,
         image: uploadedUrl || oldImage,
       };
 
@@ -97,7 +102,7 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
 
       if (!res.ok) {
         const errorMessage = await res.text();
-        throw new Error(`${errorMessage} — Product ${initialData ? "update" : "creation"} failed.`);
+        throw new Error(`${errorMessage} — collections ${initialData ? "update" : "creation"} failed.`);
       }
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['collections'] });
@@ -156,16 +161,9 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="image"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Image</FormLabel>
-                <FormControl> */}
           <ImageUpload
             initialImages={oldImage ? [oldImage] : []}
-            value={files ? [files] : []}
+            value={file ? [file] : []}
             isConvert={isConvert}
             isCollection={true}
             onIsConvert={(onIsConvert) => setIsConvert(onIsConvert)}
@@ -173,14 +171,9 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
               setImagesToRemove(onImagesRemove);
               setOldImage('');
             }}
-            onChange={(file) => setFiles(file[0])}
-            onRemove={() => setFiles(null)}
+            onChange={(file) => setFile(file[0])}
+            onRemove={() => setFile(null)}
           />
-          {/* </FormControl>
-                <FormMessage className="text-red-1"/>
-              </FormItem>
-            )}
-          /> */}
           <div className="flex gap-10">
             <Button type="submit" >
               {loading && <LoaderIcon className="animate-spin mr-1" />}

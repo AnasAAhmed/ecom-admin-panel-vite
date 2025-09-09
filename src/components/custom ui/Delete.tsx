@@ -78,11 +78,11 @@ const Delete: React.FC<DeleteProps> = ({ item, id }) => {
         <AlertDialogHeader>
           <AlertDialogTitle className="text-red-500">Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this {item}.
+            This action cannot be undone. This will permanently delete this {item.replace('s', '')}.
             {item == 'products' || item == 'collections' ? <span className="mt-3 flex items-center gap-1">
               <input defaultChecked={Boolean(deleteImageToo)} onClick={() => handleDeleteImageToo()} type="checkbox" name="deleteImageToo" id="deleteImage" />
               <Label htmlFor="deleteImage">Delete With images on the cloud</Label>
-            </span>:''}
+            </span> : ''}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
